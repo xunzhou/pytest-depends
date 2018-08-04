@@ -1,0 +1,6 @@
+pycodestyle
+pydocstyle
+pytest
+pytest-cov
+pytest-randomly
+pytest-xdist
