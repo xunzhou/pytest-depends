@@ -49,3 +49,70 @@ class TestOrder(object):
 			'*::test_foo PASSED*',
 		])
 		assert result.ret == 0
+
+
+class TestListDependencyNames(object):
+	def test_scope_single(self, testdir):
+		testdir.makepyfile("""
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Dependency names:',
+			'*.py -> *::test_foo',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_scope_multi(self, testdir):
+		testdir.makepyfile("""
+			def test_foo():
+				pass
+			def test_bar():
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Dependency names:',
+			'*.py ->',
+			'  *::test_bar',
+			'  *::test_foo',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_alias(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(name = 'baz')
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Dependency names:',
+			'*baz -> *::test_foo',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_multi_target_alias(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(name = 'baz')
+			def test_foo():
+				pass
+			@pytest.mark.depends(name = 'baz')
+			def test_bar():
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Dependency names:',
+			'*baz ->',
+			'  *::test_bar',
+			'  *::test_foo',
+			'collected *',
+		])
+		assert result.ret == 0

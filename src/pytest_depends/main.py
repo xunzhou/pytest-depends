@@ -26,6 +26,28 @@ def build_name_map(items):
 	return mapping
 
 
+def print_name_map(mapping, verbose):
+	""" Print a human-readable version of the name -> item mapping. """
+	print('Dependency names:')
+	for name, name_items in sorted(mapping.items(), key = lambda x: x[0]):
+		if len(name_items) == 1:
+			nodeid = clean_nodeid(name_items[0].nodeid)
+			if name == nodeid:
+				# This is just the base name, only print this when verbose
+				if verbose:
+					print(f'  {name}')
+			else:
+				# Name refers to a single node id, so use the short format
+				print(f'  {name} -> {nodeid}')
+		else:
+			# Name refers to multiple node ids, so use the long format
+			print(f'  {name} ->')
+			nodeids = [clean_nodeid(item.nodeid) for item in name_items]
+			nodeids.sort()
+			for nodeid in nodeids:
+				print(f'    {nodeid}')
+
+
 def get_ordered_tests(mapping, items):
 	""" Get a sorted list of tests where all tests are sorted after their dependencies. """
 	# Build a directed graph for sorting
@@ -49,7 +71,6 @@ def get_ordered_tests(mapping, items):
 
 			# Add edge for the dependency
 			for dependency_item in mapping[dependency]:
-				print(f'{nodeid} depends on {dependency}')
 				dag.add_edge(dependency_item, item)
 
 	# Return the sorted list
