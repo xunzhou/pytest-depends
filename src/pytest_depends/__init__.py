@@ -3,7 +3,6 @@
 import collections
 
 import networkx
-import pytest
 
 from pytest_depends.constants import MARKER_NAME
 from pytest_depends.constants import MARKER_KWARG_DEPENDENCIES
@@ -55,7 +54,6 @@ def get_ordered_tests(mapping, items):
 def pytest_collection_modifyitems(session, items):  # noqa: D103
 	# Build a mapping of names to matching tests
 	session.name_to_items = build_name_map(items)
-	print(session.name_to_items)
 
 	# Reorder the items so that tests run after their dependencies
 	items[:] = get_ordered_tests(session.name_to_items, items)
