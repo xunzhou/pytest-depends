@@ -35,16 +35,16 @@ def strip_nodeid_parameters(nodeid):
 	return REGEX_PARAMETERS.sub('', nodeid)
 
 
-def absolute_nodeid(nodeid, scope):
+def get_absolute_nodeid(nodeid, scope):
 	"""
 	Transform a possibly relative node id to an absolute one using the scope in which it is used.
 
 	>>> scope = 'test_file.py::TestClass::test'
-	>>> absolute_nodeid('test2', scope)
+	>>> get_absolute_nodeid('test2', scope)
 	'test_file.py::TestClass::test2'
-	>>> absolute_nodeid('TestClass2::test2', scope)
+	>>> get_absolute_nodeid('TestClass2::test2', scope)
 	'test_file.py::TestClass2::test2'
-	>>> absolute_nodeid('test_file2.py::TestClass2::test2', scope)
+	>>> get_absolute_nodeid('test_file2.py::TestClass2::test2', scope)
 	'test_file2.py::TestClass2::test2'
 	"""
 	parts = nodeid.split('::')

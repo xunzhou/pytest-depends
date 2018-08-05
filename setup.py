@@ -35,7 +35,10 @@ setup(
 	packages = find_packages('src'),
 	package_dir = { '': 'src' },
 	zip_safe = False,
-	install_requires = ['pytest', 'xnetwork'],
+	install_requires = [
+		'pytest >= 3, < 3.7',
+		'networkx',
+	],
 	entry_points={
 		'pytest11': [
 			'depends = pytest_depends',
