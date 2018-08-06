@@ -28,11 +28,11 @@ class TestGetAbsoluteNodeid(object):
 	def test_relative_from_file(self):
 		scope = 'test_file.py::test'
 		assert testmodule.get_absolute_nodeid('test2', scope) == 'test_file.py::test2'
-	
+
 	def test_relative_class_from_class(self):
 		scope = 'test_file.py::TestClass::test'
 		assert testmodule.get_absolute_nodeid('TestClass2::test2', scope) == 'test_file.py::TestClass2::test2'
-	
+
 	def test_relative_class_from_file(self):
 		scope = 'test_file.py::test'
 		assert testmodule.get_absolute_nodeid('TestClass2::test2', scope) == 'test_file.py::TestClass2::test2'
