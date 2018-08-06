@@ -35,17 +35,17 @@ def print_name_map(mapping, verbose):
 			if name == nodeid:
 				# This is just the base name, only print this when verbose
 				if verbose:
-					print(f'  {name}')
+					print('  {name}'.format(**locals()))
 			else:
 				# Name refers to a single node id, so use the short format
-				print(f'  {name} -> {nodeid}')
+				print('  {name} -> {nodeid}'.format(**locals()))
 		else:
 			# Name refers to multiple node ids, so use the long format
-			print(f'  {name} ->')
+			print('  {name} ->'.format(**locals()))
 			nodeids = [clean_nodeid(item.nodeid) for item in name_items]
 			nodeids.sort()
 			for nodeid in nodeids:
-				print(f'    {nodeid}')
+				print('    {nodeid}'.format(**locals()))
 
 
 def get_ordered_tests(mapping, items):

@@ -51,11 +51,11 @@ def get_absolute_nodeid(nodeid, scope):
 	# Completely relative (test_name), so add the full current scope (either file::class or file)
 	if len(parts) == 1:
 		base_nodeid = scope.rsplit('::', 1)[0]
-		nodeid = f'{base_nodeid}::{nodeid}'
+		nodeid = '{base_nodeid}::{nodeid}'.format(**locals())
 	# Contains some scope already (Class::test_name), so only add the current file scope
 	elif '.' not in parts[0]:
 		base_nodeid = scope.split('::', 1)[0]
-		nodeid = f'{base_nodeid}::{nodeid}'
+		nodeid = '{base_nodeid}::{nodeid}'.format(**locals())
 	return clean_nodeid(nodeid)
 
 
