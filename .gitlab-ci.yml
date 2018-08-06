@@ -1,0 +1,49 @@
+stages:
+   - test
+
+variables: &globals
+   PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache"
+
+cache:
+   paths:
+      # Cache pip dependencies, for performance reasons
+      - "$PIP_CACHE_DIR"
+
+before_script:
+   - mkdir -p "$PIP_CACHE_DIR"
+
+# Unit tests
+.test:base: &test-base
+   stage: test
+   script:
+      - pip install -r requirements_tests.txt
+      - pip install -e .
+      - pytest
+
+test:python:3.6:
+   <<: *test-base
+   image: python:3.6-alpine
+test:python:3.5:
+   <<: *test-base
+   image: python:3.5-alpine
+test:python:3.4:
+   <<: *test-base
+   image: python:3.4-alpine
+test:python:2.7:
+   <<: *test-base
+   image: python:2.7-alpine
+test:pypy:3-6:
+   <<: *test-base
+   image: pypy:3-6-slim
+test:pypy:2-6:
+   <<: *test-base
+   image: pypy:2-6-slim
+
+# Code style
+test:style:
+   stage: test
+   image: python:alpine
+   script:
+      - pip install -r requirements_style.txt
+      - pycodestyle
+      - pydocstyle

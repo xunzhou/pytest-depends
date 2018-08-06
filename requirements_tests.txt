@@ -1,4 +1,4 @@
 pycodestyle
 pydocstyle
-pytest
+pytest >= 3, < 3.7
 pytest-cov
