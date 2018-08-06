@@ -4,9 +4,7 @@ A module that provides the pytest hooks for this plugin.
 The logic itself is in main.py.
 """
 
-from pytest_depends.main import build_name_map
-from pytest_depends.main import get_ordered_tests
-from pytest_depends.main import print_name_map
+from pytest_depends.main import DependencyManager
 
 
 def pytest_addoption(parser):  # noqa: D103
@@ -24,14 +22,16 @@ def pytest_addoption(parser):  # noqa: D103
 	)
 
 
-def pytest_collection_modifyitems(session, config, items):  # noqa: D103
-	# Build a mapping of names to matching tests
-	session.name_to_items = build_name_map(items)
+def pytest_collection_modifyitems(config, items):  # noqa: D103
+	manager = DependencyManager.get_instance()
+
+	# Register the founds tests on the manager
+	manager.items = items
 
 	# Show the dependency list if requested
 	if config.getoption('list_dependency_names'):
 		verbose = config.getoption('verbose') > 1
-		print_name_map(session.name_to_items, verbose)
+		manager.print_name_map(verbose)
 
 	# Reorder the items so that tests run after their dependencies
-	items[:] = get_ordered_tests(session.name_to_items, items)
+	items[:] = manager.sorted_items

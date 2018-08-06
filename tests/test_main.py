@@ -8,7 +8,7 @@ class TestOrder(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest('-v')
+		result = testdir.runpytest_subprocess('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar PASSED*',
 			'*::test_foo PASSED*',
@@ -25,7 +25,7 @@ class TestOrder(object):
 			def test_bar(num):
 				pass
 		""")
-		result = testdir.runpytest('-v')
+		result = testdir.runpytest_subprocess('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar* PASSED*',
 			'*::test_bar* PASSED*',
@@ -43,7 +43,7 @@ class TestOrder(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest('-v')
+		result = testdir.runpytest_subprocess('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar PASSED*',
 			'*::test_foo PASSED*',
@@ -57,7 +57,7 @@ class TestListDependencyNames(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest('--list-dependency-names')
+		result = testdir.runpytest_subprocess('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Dependency names:',
 			'*.py -> *::test_foo',
@@ -72,7 +72,7 @@ class TestListDependencyNames(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest('--list-dependency-names')
+		result = testdir.runpytest_subprocess('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Dependency names:',
 			'*.py ->',
@@ -89,7 +89,7 @@ class TestListDependencyNames(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest('--list-dependency-names')
+		result = testdir.runpytest_subprocess('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Dependency names:',
 			'*baz -> *::test_foo',
@@ -107,7 +107,7 @@ class TestListDependencyNames(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest('--list-dependency-names')
+		result = testdir.runpytest_subprocess('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Dependency names:',
 			'*baz ->',
