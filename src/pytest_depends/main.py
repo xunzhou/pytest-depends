@@ -16,6 +16,35 @@ from pytest_depends.util import get_absolute_nodeid
 from pytest_depends.util import get_names
 
 
+class TestResult(object):
+	""" Keeps track of the results of a single test. """
+
+	STEPS = ['setup', 'call', 'teardown']
+	GOOD_OUTCOMES = ['passed']
+
+	def __init__(self, nodeid):
+		""" Create a new instance for a test with a given node id. """
+		self.nodeid = nodeid
+		self.results = {}
+
+	def register_result(self, result):
+		""" Register a result of this test. """
+		if result.when not in self.STEPS:
+			raise Exception('Received result for unknown step {result.when} of test {self.nodeid}'.format(**locals()))
+		if result.when in self.results:
+			raise Exception('Received multiple results for step {result.when} of test {self.nodeid}'.format(**locals()))
+		self.results[result.when] = result.outcome
+
+	@property
+	def success(self):
+		""" Whether the entire test was successful. """
+		print(self.nodeid, self.results)
+		for step in self.STEPS:
+			if step not in self.results or self.results[step] not in self.GOOD_OUTCOMES:
+				return False
+		return True
+
+
 class DependencyManager(object):
 	""" Keep track of tests, their names and their dependencies. """
 
@@ -55,13 +84,43 @@ class DependencyManager(object):
 			names = get_names(item)
 			for name in names:
 				self._name_to_items[name].append(item)
-		self._name_to_items.default_factory = None
+
+		# Create results for each of the tests
+		self._results = {}
+		for item in items:
+			self._results[item] = TestResult(clean_nodeid(item.nodeid))
 
 	@property
 	def name_to_items(self):  # noqa: D401
 		""" A mapping from names to test(s). """
 		assert self.items is not None
 		return self._name_to_items
+
+	@property
+	def results(self):  # noqa: D401
+		""" The results of the tests. """
+		assert self.items is not None
+		return self._results
+
+	def _get_dependencies(self, item):
+		""" Get the dependencies of a test as a list of test functions. """
+		marker = item.get_marker(MARKER_NAME)
+		if marker is None:
+			return []
+
+		nodeid = clean_nodeid(item.nodeid)
+		dependencies = set()
+		for dependency_name in marker.kwargs.get(MARKER_KWARG_DEPENDENCIES, []):
+			# If the name is not known, try to make it absolute (ie file::[class::]method)
+			if dependency_name not in self.name_to_items:
+				absolute_dependency_name = get_absolute_nodeid(dependency_name, nodeid)
+				if absolute_dependency_name in self.name_to_items:
+					dependency_name = absolute_dependency_name
+
+			# Add all items matching the name
+			for dependency_item in self.name_to_items[dependency_name]:
+				dependencies.add(dependency_item)
+		return dependencies
 
 	def print_name_map(self, verbose):
 		""" Print a human-readable version of the name -> test mapping. """
@@ -96,19 +155,21 @@ class DependencyManager(object):
 
 		# Insert edges for all the dependencies
 		for item in self.items:
-			marker = item.get_marker(MARKER_NAME)
-			if marker is None:
-				continue
-
-			nodeid = clean_nodeid(item.nodeid)
-			for dependency in marker.kwargs.get(MARKER_KWARG_DEPENDENCIES, []):
-				# Make sure the name is absolute (ie file::[class::]method)
-				if dependency not in self.name_to_items:
-					dependency = get_absolute_nodeid(dependency, nodeid)
-
-				# Add edge for the dependency
-				for dependency_item in self.name_to_items[dependency]:
-					dag.add_edge(dependency_item, item)
+			for dependency in self._get_dependencies(item):
+				dag.add_edge(dependency, item)
 
 		# Return the sorted list
 		return networkx.topological_sort(dag)
+
+	def register_result(self, item, result):
+		""" Register a result of a test. """
+		self.results[item].register_result(result)
+
+	def get_blockers(self, item):
+		""" Get a list of unfulfilled dependencies for a test. """
+		blockers = []
+		for dependency in self._get_dependencies(item):
+			result = self.results[dependency]
+			if not result.success:
+				blockers.append(dependency)
+		return blockers

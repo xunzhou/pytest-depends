@@ -4,7 +4,10 @@ A module that provides the pytest hooks for this plugin.
 The logic itself is in main.py.
 """
 
+import pytest
+
 from pytest_depends.main import DependencyManager
+from pytest_depends.util import clean_nodeid
 
 
 def pytest_addoption(parser):  # noqa: D103
@@ -35,3 +38,24 @@ def pytest_collection_modifyitems(config, items):  # noqa: D103
 
 	# Reorder the items so that tests run after their dependencies
 	items[:] = manager.sorted_items
+
+
+@pytest.hookimpl(tryfirst = True, hookwrapper = True)
+def pytest_runtest_makereport(item, call):  # noqa: D103
+	manager = DependencyManager.get_instance()
+
+	# Run the step
+	outcome = yield
+
+	# Store the result on the manager
+	manager.register_result(item, outcome.result)
+
+
+def pytest_runtest_setup(item):  # noqa: D103
+	manager = DependencyManager.get_instance()
+
+	# Check whether all dependencies succeeded
+	blockers = manager.get_blockers(item)
+	if blockers:
+		blocking_nodeids = ', '.join([clean_nodeid(blocker.nodeid) for blocker in blockers])
+		pytest.skip('{item.nodeid} depends on {blocking_nodeids}'.format(**locals()))
