@@ -106,6 +106,7 @@ def pytest_configure(config):  # noqa: D103
 	)
 
 
+@pytest.hookimpl(trylast = True)
 def pytest_collection_modifyitems(config, items):  # noqa: D103
 	manager = managers[-1]
 
