@@ -142,18 +142,44 @@ class TestDependencySkip(object):
 		])
 		assert result.ret != 0
 
-	def test_missing(self, testdir):
+	def test_missing_run(self, testdir):
 		testdir.makepyfile("""
 			import pytest
 			@pytest.mark.depends(on=['baz'])
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=run')
 		result.stdout.fnmatch_lines_random([
 			'*::test_foo PASSED*',
 		])
 		assert result.ret == 0
+
+	def test_missing_skip(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(on=['baz'])
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=skip')
+		result.stdout.fnmatch_lines_random([
+			'*::test_foo SKIPPED*',
+		])
+		assert result.ret == 0
+
+	def test_missing_fail(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(on=['baz'])
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=fail')
+		result.stdout.fnmatch_lines_random([
+			'*::test_foo FAILED*',
+		])
+		assert result.ret == 1
 
 
 class TestListDependencyNames(object):

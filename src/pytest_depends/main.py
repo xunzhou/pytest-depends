@@ -83,6 +83,7 @@ class DependencyManager(object):
 
 		Should not be used directly, get_instance() instead.
 		"""
+		self.options = {}
 		self._items = None
 		self._name_to_nodeids = None
 		self._nodeid_to_item = None
@@ -229,3 +230,8 @@ class DependencyManager(object):
 			if not result.success:
 				blockers.append(dependency)
 		return blockers
+
+	def get_missing(self, item):
+		""" Get a list of missing dependencies for a test. """
+		nodeid = clean_nodeid(item.nodeid)
+		return self.dependencies[nodeid].unresolved
