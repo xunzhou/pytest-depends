@@ -57,5 +57,5 @@ def pytest_runtest_setup(item):  # noqa: D103
 	# Check whether all dependencies succeeded
 	blockers = manager.get_blockers(item)
 	if blockers:
-		blocking_nodeids = ', '.join([clean_nodeid(blocker.nodeid) for blocker in blockers])
+		blocking_nodeids = ', '.join(blockers)
 		pytest.skip('{item.nodeid} depends on {blocking_nodeids}'.format(**locals()))
