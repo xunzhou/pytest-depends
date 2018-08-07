@@ -280,6 +280,43 @@ class TestListDependencyNames(object):
 		])
 		assert result.ret == 0
 
+	def test_parametrized(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.parametrize('num', [1, 2])
+			def test_foo(num):
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Available dependency names:',
+			'*::test_foo ->',
+			'  *::test_foo*',
+			'  *::test_foo*',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_parametrized_params(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(name='bar')
+			@pytest.mark.parametrize('num', [
+				pytest.param(1, marks=pytest.mark.depends(name='baz')),
+				2
+			])
+			def test_foo(num):
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Available dependency names:',
+			'*bar -> *::test_foo*',
+			'*baz -> *::test_foo*',
+			'collected *',
+		])
+		assert result.ret == 0
+
 
 class TestListProcessedDependencies(object):
 	def test_simple(self, testdir):
