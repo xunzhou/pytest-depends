@@ -10,11 +10,26 @@ from pytest_depends.main import DependencyManager
 from pytest_depends.util import clean_nodeid
 
 
-MISSING_DEPENDENCY_ACTIONS = {
+DEPENDENCY_PROBLEM_ACTIONS = {
 	'run': None,
 	'skip': lambda m: pytest.skip(m),
 	'fail': lambda m: pytest.fail(m, False),
 }
+
+
+def _add_ini_and_option(parser, group, name, help, default, **kwargs):
+	""" Add an option to both the ini file as well as the command line flags, with the latter overriding the former. """
+	parser.addini(name, help + ' This overrides the similarly named option from the config.', default = default)
+	group.addoption('--{}'.format(name.replace('_', '-')), help = help, default = None, **kwargs)
+
+
+def _get_ini_or_option(config, name, choices):
+	""" Get an option from either the ini file or the command line flags, the latter taking precedence. """
+	value = config.getini(name)
+	if value is not None and choices is not None and value not in choices:
+		choices_text = ', '.join(choices)
+		raise Exception('Invalid ini value for {name}, choose from {choices_text}'.format(**locals()))
+	return config.getoption(name) or value
 
 
 def pytest_addoption(parser):  # noqa: D103
@@ -39,30 +54,47 @@ def pytest_addoption(parser):  # noqa: D103
 		help = 'List all dependencies of all tests as a list of nodeids + the names that could not be resolved.',
 	)
 
-	# Add an ini option + flag to choose the action to take for unresolved dependencies
-	help_message = (
-		'The action to take when a test has dependencies that cannot be found within the current scope. '
-		'Use "run" to run the test anyway, "skip" to skip the test, and "fail" to fail the test.'
+	# Add an ini option + flag to choose the action to take for failed dependencies
+	_add_ini_and_option(
+		parser,
+		group,
+		name = 'failed_dependency_action',
+		help = (
+			'The action to take when a test has dependencies that failed. '
+			'Use "run" to run the test anyway, "skip" to skip the test, and "fail" to fail the test.'
+		),
+		default = 'skip',
+		choices = DEPENDENCY_PROBLEM_ACTIONS.keys(),
 	)
-	parser.addini('missing_dependency_action', help_message, default = 'skip')
-	group.addoption(
-		'--missing-dependency-action',
-		choices = MISSING_DEPENDENCY_ACTIONS.keys(),
-		default = None,
-		help = help_message,
+
+	# Add an ini option + flag to choose the action to take for unresolved dependencies
+	_add_ini_and_option(
+		parser,
+		group,
+		name = 'missing_dependency_action',
+		help = (
+			'The action to take when a test has dependencies that cannot be found within the current scope. '
+			'Use "run" to run the test anyway, "skip" to skip the test, and "fail" to fail the test.'
+		),
+		default = 'skip',
+		choices = DEPENDENCY_PROBLEM_ACTIONS.keys(),
 	)
 
 
 def pytest_configure(config):  # noqa: D103
 	manager = DependencyManager.get_instance()
 
-	# Setup the handling of unresolved dependencies
-	missing_dependency_action = config.getini('missing_dependency_action')
-	if missing_dependency_action is not None and missing_dependency_action not in MISSING_DEPENDENCY_ACTIONS:
-		choices = ', '.join(MISSING_DEPENDENCY_ACTIONS.keys())
-		raise Exception('Invalid ini value for missing_dependency_action, choose from {choices}'.format(**locals()))
-	missing_dependency_action = config.getoption('missing_dependency_action') or missing_dependency_action
-	manager.options['missing_dependency_action'] = MISSING_DEPENDENCY_ACTIONS[missing_dependency_action]
+	# Setup the handling of problems with dependencies
+	manager.options['failed_dependency_action'] = _get_ini_or_option(
+		config,
+		'failed_dependency_action',
+		DEPENDENCY_PROBLEM_ACTIONS.keys(),
+	)
+	manager.options['missing_dependency_action'] = _get_ini_or_option(
+		config,
+		'missing_dependency_action',
+		DEPENDENCY_PROBLEM_ACTIONS.keys(),
+	)
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: D103
@@ -98,14 +130,15 @@ def pytest_runtest_call(item):  # noqa: D103
 	manager = DependencyManager.get_instance()
 
 	# Handle missing dependencies
-	missing_dependency_action = manager.options['missing_dependency_action']
+	missing_dependency_action = DEPENDENCY_PROBLEM_ACTIONS[manager.options['missing_dependency_action']]
 	missing = manager.get_missing(item)
 	if missing_dependency_action and missing:
 		missing_text = ', '.join(missing)
 		missing_dependency_action('{item.nodeid} depends on {missing_text}, which was not found'.format(**locals()))
 
 	# Check whether all dependencies succeeded
-	blockers = manager.get_blockers(item)
-	if blockers:
-		blocking_text = ', '.join(blockers)
-		pytest.skip('{item.nodeid} depends on {blocking_text}'.format(**locals()))
+	failed_dependency_action = DEPENDENCY_PROBLEM_ACTIONS[manager.options['failed_dependency_action']]
+	failed = manager.get_failed(item)
+	if failed_dependency_action and failed:
+		failed_text = ', '.join(failed)
+		failed_dependency_action('{item.nodeid} depends on {failed_text}'.format(**locals()))

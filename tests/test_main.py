@@ -52,7 +52,7 @@ class TestOrder(object):
 
 
 class TestDependencySkip(object):
-	def test_fail(self, testdir):
+	def test_simple_run(self, testdir):
 		testdir.makepyfile("""
 			import pytest
 			def test_bar():
@@ -61,10 +61,42 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=run')
+		result.stdout.fnmatch_lines_random([
+			'*::test_bar FAILED*',
+			'*::test_foo PASSED*',
+		])
+		assert result.ret != 0
+
+	def test_simple_skip(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			def test_bar():
+				assert 1 == 2
+			@pytest.mark.depends(on=['test_bar'])
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=skip')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar FAILED*',
 			'*::test_foo SKIPPED*',
+		])
+		assert result.ret != 0
+
+	def test_simple_fail(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			def test_bar():
+				assert 1 == 2
+			@pytest.mark.depends(on=['test_bar'])
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=fail')
+		result.stdout.fnmatch_lines_random([
+			'*::test_bar FAILED*',
+			'*::test_foo FAILED*',
 		])
 		assert result.ret != 0
 

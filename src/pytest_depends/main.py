@@ -39,7 +39,6 @@ class TestResult(object):
 	@property
 	def success(self):
 		""" Whether the entire test was successful. """
-		print(self.nodeid, self.results)
 		for step in self.STEPS:
 			if step not in self.results or self.results[step] not in self.GOOD_OUTCOMES:
 				return False
@@ -221,15 +220,15 @@ class DependencyManager(object):
 		nodeid = clean_nodeid(item.nodeid)
 		self.results[nodeid].register_result(result)
 
-	def get_blockers(self, item):
+	def get_failed(self, item):
 		""" Get a list of unfulfilled dependencies for a test. """
 		nodeid = clean_nodeid(item.nodeid)
-		blockers = []
+		failed = []
 		for dependency in self.dependencies[nodeid].dependencies:
 			result = self.results[dependency]
 			if not result.success:
-				blockers.append(dependency)
-		return blockers
+				failed.append(dependency)
+		return failed
 
 	def get_missing(self, item):
 		""" Get a list of missing dependencies for a test. """
