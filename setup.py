@@ -36,9 +36,10 @@ setup(
 	package_dir = { '': 'src' },
 	zip_safe = False,
 	install_requires = [
-		'pytest >= 3, < 3.7',
-		'networkx',
 		'colorama',
+		'future-fstrings',
+		'networkx',
+		'pytest >= 3, < 3.7',
 	],
 	entry_points={
 		'pytest11': [

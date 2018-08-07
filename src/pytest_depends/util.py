@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 """ Utility functions to process the identifiers of tests. """
 
 import re
@@ -51,11 +53,11 @@ def get_absolute_nodeid(nodeid, scope):
 	# Completely relative (test_name), so add the full current scope (either file::class or file)
 	if len(parts) == 1:
 		base_nodeid = scope.rsplit('::', 1)[0]
-		nodeid = '{base_nodeid}::{nodeid}'.format(**locals())
+		nodeid = f'{base_nodeid}::{nodeid}'
 	# Contains some scope already (Class::test_name), so only add the current file scope
 	elif '.' not in parts[0]:
 		base_nodeid = scope.split('::', 1)[0]
-		nodeid = '{base_nodeid}::{nodeid}'.format(**locals())
+		nodeid = f'{base_nodeid}::{nodeid}'
 	return clean_nodeid(nodeid)
 
 

@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 """
 A module to manage dependencies between pytest tests.
 
@@ -31,9 +33,9 @@ class TestResult(object):
 	def register_result(self, result):
 		""" Register a result of this test. """
 		if result.when not in self.STEPS:
-			raise Exception('Received result for unknown step {result.when} of test {self.nodeid}'.format(**locals()))
+			raise Exception(f'Received result for unknown step {result.when} of test {self.nodeid}')
 		if result.when in self.results:
-			raise Exception('Received multiple results for step {result.when} of test {self.nodeid}'.format(**locals()))
+			raise Exception(f'Received multiple results for step {result.when} of test {self.nodeid}')
 		self.results[result.when] = result.outcome
 
 	@property
@@ -164,21 +166,21 @@ class DependencyManager(object):
 				if name == nodeids[0]:
 					# This is just the base name, only print this when verbose
 					if verbose:
-						print('  {name}'.format(**locals()))
+						print(f'  {name}')
 				else:
 					# Name refers to a single node id, so use the short format
-					print('  {name} -> {nodeids[0]}'.format(**locals()))
+					print(f'  {name} -> {nodeids[0]}')
 			else:
 				# Name refers to multiple node ids, so use the long format
-				print('  {name} ->'.format(**locals()))
+				print(f'  {name} ->')
 				for nodeid in sorted(nodeids):
-					print('    {nodeid}'.format(**locals()))
+					print(f'    {nodeid}')
 
 	def print_processed_dependencies(self, colors = False):
 		""" Print a human-readable list of the processed dependencies. """
 		missing = 'MISSING'
 		if colors:
-			missing = '{colorama.Fore.RED}{missing}{colorama.Fore.RESET}'.format(colorama = colorama, **locals())
+			missing = f'{colorama.Fore.RED}{missing}{colorama.Fore.RESET}'
 			colorama.init()
 		try:
 			print('Dependencies:')
@@ -187,11 +189,11 @@ class DependencyManager(object):
 				for dependency in info.dependencies:
 					descriptions.append(dependency)
 				for dependency in info.unresolved:
-					descriptions.append('{dependency} ({missing})'.format(**locals()))
+					descriptions.append(f'{dependency} ({missing})')
 				if descriptions:
-					print('  {nodeid} depends on'.format(**locals()))
+					print(f'  {nodeid} depends on')
 					for description in sorted(descriptions):
-						print('    {description}'.format(**locals()))
+						print(f'    {description}')
 		finally:
 			if colors:
 				colorama.deinit()

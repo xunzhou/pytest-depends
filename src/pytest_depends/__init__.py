@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 """
 A module that provides the pytest hooks for this plugin.
 
@@ -20,15 +22,14 @@ DEPENDENCY_PROBLEM_ACTIONS = {
 def _add_ini_and_option(parser, group, name, help, default, **kwargs):
 	""" Add an option to both the ini file as well as the command line flags, with the latter overriding the former. """
 	parser.addini(name, help + ' This overrides the similarly named option from the config.', default = default)
-	group.addoption('--{}'.format(name.replace('_', '-')), help = help, default = None, **kwargs)
+	group.addoption(f'--{name.replace("_", "-")}', help = help, default = None, **kwargs)
 
 
 def _get_ini_or_option(config, name, choices):
 	""" Get an option from either the ini file or the command line flags, the latter taking precedence. """
 	value = config.getini(name)
 	if value is not None and choices is not None and value not in choices:
-		choices_text = ', '.join(choices)
-		raise Exception('Invalid ini value for {name}, choose from {choices_text}'.format(**locals()))
+		raise Exception(f'Invalid ini value for {name}, choose from {", ".join(choices)}')
 	return config.getoption(name) or value
 
 
@@ -133,12 +134,10 @@ def pytest_runtest_call(item):  # noqa: D103
 	missing_dependency_action = DEPENDENCY_PROBLEM_ACTIONS[manager.options['missing_dependency_action']]
 	missing = manager.get_missing(item)
 	if missing_dependency_action and missing:
-		missing_text = ', '.join(missing)
-		missing_dependency_action('{item.nodeid} depends on {missing_text}, which was not found'.format(**locals()))
+		missing_dependency_action(f'{item.nodeid} depends on {", ".join(missing)}, which was not found')
 
 	# Check whether all dependencies succeeded
 	failed_dependency_action = DEPENDENCY_PROBLEM_ACTIONS[manager.options['failed_dependency_action']]
 	failed = manager.get_failed(item)
 	if failed_dependency_action and failed:
-		failed_text = ', '.join(failed)
-		failed_dependency_action('{item.nodeid} depends on {failed_text}'.format(**locals()))
+		failed_dependency_action(f'{item.nodeid} depends on {", ".join(failed)}')
