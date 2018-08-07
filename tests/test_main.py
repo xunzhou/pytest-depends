@@ -8,7 +8,7 @@ class TestOrder(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar PASSED*',
 			'*::test_foo PASSED*',
@@ -25,7 +25,7 @@ class TestOrder(object):
 			def test_bar(num):
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar* PASSED*',
 			'*::test_bar* PASSED*',
@@ -43,7 +43,7 @@ class TestOrder(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines([
 			'*::test_bar PASSED*',
 			'*::test_foo PASSED*',
@@ -61,7 +61,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=run')
+		result = testdir.runpytest('-v', '--failed-dependency-action=run')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar FAILED*',
 			'*::test_foo PASSED*',
@@ -77,7 +77,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=skip')
+		result = testdir.runpytest('-v', '--failed-dependency-action=skip')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar FAILED*',
 			'*::test_foo SKIPPED*',
@@ -93,7 +93,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--failed-dependency-action=fail')
+		result = testdir.runpytest('-v', '--failed-dependency-action=fail')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar FAILED*',
 			'*::test_foo FAILED*',
@@ -112,7 +112,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar ERROR*',
 			'*::test_foo SKIPPED*',
@@ -132,7 +132,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar ERROR*',
 			'*::test_foo SKIPPED*',
@@ -149,7 +149,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar SKIPPED*',
 			'*::test_foo SKIPPED*',
@@ -166,7 +166,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v')
+		result = testdir.runpytest('-v')
 		result.stdout.fnmatch_lines_random([
 			'*::test_bar* PASSED*',
 			'*::test_bar* FAILED*',
@@ -181,7 +181,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=run')
+		result = testdir.runpytest('-v', '--missing-dependency-action=run')
 		result.stdout.fnmatch_lines_random([
 			'*::test_foo PASSED*',
 		])
@@ -194,7 +194,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=skip')
+		result = testdir.runpytest('-v', '--missing-dependency-action=skip')
 		result.stdout.fnmatch_lines_random([
 			'*::test_foo SKIPPED*',
 		])
@@ -207,7 +207,7 @@ class TestDependencySkip(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('-v', '--missing-dependency-action=fail')
+		result = testdir.runpytest('-v', '--missing-dependency-action=fail')
 		result.stdout.fnmatch_lines_random([
 			'*::test_foo FAILED*',
 		])
@@ -220,7 +220,7 @@ class TestListDependencyNames(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-dependency-names')
+		result = testdir.runpytest('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Available dependency names:',
 			'*.py -> *::test_foo',
@@ -235,7 +235,7 @@ class TestListDependencyNames(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-dependency-names')
+		result = testdir.runpytest('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Available dependency names:',
 			'*.py ->',
@@ -252,7 +252,7 @@ class TestListDependencyNames(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-dependency-names')
+		result = testdir.runpytest('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Available dependency names:',
 			'*baz -> *::test_foo',
@@ -270,7 +270,7 @@ class TestListDependencyNames(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-dependency-names')
+		result = testdir.runpytest('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Available dependency names:',
 			'*baz ->',
@@ -291,7 +291,7 @@ class TestListProcessedDependencies(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-processed-dependencies')
+		result = testdir.runpytest('--list-processed-dependencies')
 		result.stdout.fnmatch_lines([
 			'Dependencies:',
 			'*::test_foo*',
@@ -310,7 +310,7 @@ class TestListProcessedDependencies(object):
 			def test_bar(num):
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-processed-dependencies')
+		result = testdir.runpytest('--list-processed-dependencies')
 		result.stdout.fnmatch_lines([
 			'Dependencies:',
 			'*::test_foo*',
@@ -330,7 +330,7 @@ class TestListProcessedDependencies(object):
 			def test_bar():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-processed-dependencies')
+		result = testdir.runpytest('--list-processed-dependencies')
 		result.stdout.fnmatch_lines([
 			'Dependencies:',
 			'*::test_foo*',
@@ -346,7 +346,7 @@ class TestListProcessedDependencies(object):
 			def test_foo():
 				pass
 		""")
-		result = testdir.runpytest_subprocess('--list-processed-dependencies')
+		result = testdir.runpytest('--list-processed-dependencies')
 		result.stdout.fnmatch_lines([
 			'Dependencies:',
 			'*::test_foo*',

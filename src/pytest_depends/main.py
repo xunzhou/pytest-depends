@@ -90,13 +90,6 @@ class DependencyManager(object):
 		self._nodeid_to_item = None
 		self._results = None
 
-	@classmethod
-	def get_instance(cls):
-		""" Get the instance of the singleton. """
-		if not hasattr(cls, '_instance'):
-			cls._instance = DependencyManager()
-		return cls._instance
-
 	@property
 	def items(self):  # noqa: D401
 		""" The collected tests that are managed by this instance. """

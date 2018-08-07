@@ -12,6 +12,13 @@ from pytest_depends.main import DependencyManager
 from pytest_depends.util import clean_nodeid
 
 
+# Each test suite run should have a single manager object. For regular runs, a simple singleton would suffice, but for
+# our own tests this causes problems, as the nested pytest runs get the same instance. This can be worked around by
+# running them all in subprocesses, but this slows the tests down massively. Instead, keep a stack of managers, so each
+# test suite will have its own manager, even nested ones.
+managers = []
+
+
 DEPENDENCY_PROBLEM_ACTIONS = {
 	'run': None,
 	'skip': lambda m: pytest.skip(m),
@@ -83,7 +90,8 @@ def pytest_addoption(parser):  # noqa: D103
 
 
 def pytest_configure(config):  # noqa: D103
-	manager = DependencyManager.get_instance()
+	manager = DependencyManager()
+	managers.append(manager)
 
 	# Setup the handling of problems with dependencies
 	manager.options['failed_dependency_action'] = _get_ini_or_option(
@@ -99,7 +107,7 @@ def pytest_configure(config):  # noqa: D103
 
 
 def pytest_collection_modifyitems(config, items):  # noqa: D103
-	manager = DependencyManager.get_instance()
+	manager = managers[-1]
 
 	# Register the founds tests on the manager
 	manager.items = items
@@ -118,7 +126,7 @@ def pytest_collection_modifyitems(config, items):  # noqa: D103
 
 @pytest.hookimpl(tryfirst = True, hookwrapper = True)
 def pytest_runtest_makereport(item, call):  # noqa: D103
-	manager = DependencyManager.get_instance()
+	manager = managers[-1]
 
 	# Run the step
 	outcome = yield
@@ -128,7 +136,7 @@ def pytest_runtest_makereport(item, call):  # noqa: D103
 
 
 def pytest_runtest_call(item):  # noqa: D103
-	manager = DependencyManager.get_instance()
+	manager = managers[-1]
 
 	# Handle missing dependencies
 	missing_dependency_action = DEPENDENCY_PROBLEM_ACTIONS[manager.options['missing_dependency_action']]
@@ -141,3 +149,7 @@ def pytest_runtest_call(item):  # noqa: D103
 	failed = manager.get_failed(item)
 	if failed_dependency_action and failed:
 		failed_dependency_action(f'{item.nodeid} depends on {", ".join(failed)}')
+
+
+def pytest_unconfigure():  # noqa: D103
+	managers.pop()
