@@ -38,6 +38,7 @@ setup(
 	install_requires = [
 		'pytest >= 3, < 3.7',
 		'networkx',
+		'colorama',
 	],
 	entry_points={
 		'pytest11': [

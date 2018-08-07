@@ -7,6 +7,7 @@ __init__.py.
 
 import collections
 
+import colorama
 import networkx
 
 from pytest_depends.constants import MARKER_NAME
@@ -52,6 +53,7 @@ class TestDependencies(object):
 		""" Create a new instance for a given test. """
 		self.nodeid = clean_nodeid(item.nodeid)
 		self.dependencies = set()
+		self.unresolved = set()
 
 		marker = item.get_marker(MARKER_NAME)
 		if marker is None:
@@ -65,8 +67,11 @@ class TestDependencies(object):
 					dependency = absolute_dependency
 
 			# Add all items matching the name
-			for nodeid in manager.name_to_nodeids.get(dependency, []):
-				self.dependencies.add(nodeid)
+			if dependency in manager.name_to_nodeids:
+				for nodeid in manager.name_to_nodeids[dependency]:
+					self.dependencies.add(nodeid)
+			else:
+				self.unresolved.add(dependency)
 
 
 class DependencyManager(object):
@@ -151,9 +156,9 @@ class DependencyManager(object):
 		assert self.items is not None
 		return self._dependencies
 
-	def print_name_map(self, verbose):
+	def print_name_map(self, verbose = False):
 		""" Print a human-readable version of the name -> test mapping. """
-		print('Dependency names:')
+		print('Available dependency names:')
 		for name, nodeids in sorted(self.name_to_nodeids.items(), key = lambda x: x[0]):
 			if len(nodeids) == 1:
 				if name == nodeids[0]:
@@ -168,6 +173,28 @@ class DependencyManager(object):
 				print('  {name} ->'.format(**locals()))
 				for nodeid in sorted(nodeids):
 					print('    {nodeid}'.format(**locals()))
+
+	def print_processed_dependencies(self, colors = False):
+		""" Print a human-readable list of the processed dependencies. """
+		missing = 'MISSING'
+		if colors:
+			missing = '{colorama.Fore.RED}{missing}{colorama.Fore.RESET}'.format(colorama = colorama, **locals())
+			colorama.init()
+		try:
+			print('Dependencies:')
+			for nodeid, info in sorted(self.dependencies.items(), key = lambda x: x[0]):
+				descriptions = []
+				for dependency in info.dependencies:
+					descriptions.append(dependency)
+				for dependency in info.unresolved:
+					descriptions.append('{dependency} ({missing})'.format(**locals()))
+				if descriptions:
+					print('  {nodeid} depends on'.format(**locals()))
+					for description in sorted(descriptions):
+						print('    {description}'.format(**locals()))
+		finally:
+			if colors:
+				colorama.deinit()
 
 	@property
 	def sorted_items(self):

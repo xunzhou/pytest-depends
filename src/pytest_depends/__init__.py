@@ -24,6 +24,14 @@ def pytest_addoption(parser):  # noqa: D103
 		),
 	)
 
+	# Add an option to list all (resolved) dependencies for all tests + unresolvable names
+	group.addoption(
+		'--list-processed-dependencies',
+		action = 'store_true',
+		default = False,
+		help = 'List all dependencies of all tests as a list of nodeids + the names that could not be resolved.',
+	)
+
 
 def pytest_collection_modifyitems(config, items):  # noqa: D103
 	manager = DependencyManager.get_instance()
@@ -31,10 +39,13 @@ def pytest_collection_modifyitems(config, items):  # noqa: D103
 	# Register the founds tests on the manager
 	manager.items = items
 
-	# Show the dependency list if requested
+	# Show the extra information if requested
 	if config.getoption('list_dependency_names'):
 		verbose = config.getoption('verbose') > 1
 		manager.print_name_map(verbose)
+	if config.getoption('list_processed_dependencies'):
+		color = config.getoption('color')
+		manager.print_processed_dependencies(color)
 
 	# Reorder the items so that tests run after their dependencies
 	items[:] = manager.sorted_items
