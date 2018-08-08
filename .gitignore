@@ -104,5 +104,5 @@ venv.bak/
 .mypy_cache/
 
 
-# Test output
-recordings/
+# Builds of the documentation
+*.html
