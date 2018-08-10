@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+
 from setuptools import find_packages
 from setuptools import setup
+
+with open('README.md', 'r') as f:
+	long_description = f.read()
 
 setup(
 	name = 'pytest-depends',
 	version = '0.1.0',
 	license = 'MIT',
 	description = "Tests that depend on other tests",
+	long_description = long_description,
+	long_description_content_type = 'text/markdown',
 	author = 'Michon van Dooren',
 	author_email = 'michon1992@gmail.com',
 	url = 'https://gitlab.com/maienm/pytest-depends',
