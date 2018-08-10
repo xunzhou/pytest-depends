@@ -9,9 +9,9 @@ with open('README.md', 'r') as f:
 
 setup(
 	name = 'pytest-depends',
-	version = '0.1.0',
+	version = '0.8.0',
 	license = 'MIT',
-	description = "Tests that depend on other tests",
+	description = 'Tests that depend on other tests',
 	long_description = long_description,
 	long_description_content_type = 'text/markdown',
 	author = 'Michon van Dooren',
