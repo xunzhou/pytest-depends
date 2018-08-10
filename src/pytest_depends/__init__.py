@@ -36,7 +36,7 @@ def _get_ini_or_option(config, name, choices):
 	""" Get an option from either the ini file or the command line flags, the latter taking precedence. """
 	value = config.getini(name)
 	if value is not None and choices is not None and value not in choices:
-		raise Exception(f'Invalid ini value for {name}, choose from {", ".join(choices)}')
+		raise ValueError(f'Invalid ini value for {name}, choose from {", ".join(choices)}')
 	return config.getoption(name) or value
 
 

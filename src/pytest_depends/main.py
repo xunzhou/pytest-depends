@@ -33,18 +33,15 @@ class TestResult(object):
 	def register_result(self, result):
 		""" Register a result of this test. """
 		if result.when not in self.STEPS:
-			raise Exception(f'Received result for unknown step {result.when} of test {self.nodeid}')
+			raise ValueError(f'Received result for unknown step {result.when} of test {self.nodeid}')
 		if result.when in self.results:
-			raise Exception(f'Received multiple results for step {result.when} of test {self.nodeid}')
+			raise AttributeError(f'Received multiple results for step {result.when} of test {self.nodeid}')
 		self.results[result.when] = result.outcome
 
 	@property
 	def success(self):
 		""" Whether the entire test was successful. """
-		for step in self.STEPS:
-			if step not in self.results or self.results[step] not in self.GOOD_OUTCOMES:
-				return False
-		return True
+		return all(self.results.get(step, None) in self.GOOD_OUTCOMES for step in self.STEPS)
 
 
 class TestDependencies(object):
@@ -79,11 +76,7 @@ class DependencyManager(object):
 	""" Keep track of tests, their names and their dependencies. """
 
 	def __init__(self):
-		"""
-		Create a new DependencyManager.
-
-		Should not be used directly, get_instance() instead.
-		"""
+		""" Create a new DependencyManager. """
 		self.options = {}
 		self._items = None
 		self._name_to_nodeids = None
@@ -94,13 +87,13 @@ class DependencyManager(object):
 	def items(self):  # noqa: D401
 		""" The collected tests that are managed by this instance. """
 		if self._items is None:
-			raise Exception('The items have not been set yet')
+			raise AttributeError('The items attribute has not been set yet')
 		return self._items
 
 	@items.setter
 	def items(self, items):
 		if self._items is not None:
-			raise Exception('The items have already been set')
+			raise AttributeError('The items attribute has already been set')
 		self._items = items
 
 		self._name_to_nodeids = collections.defaultdict(list)
