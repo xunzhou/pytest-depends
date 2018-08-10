@@ -8,6 +8,12 @@ from pytest_depends.constants import MARKER_NAME
 from pytest_depends.constants import MARKER_KWARG_ID
 
 
+try:
+	basestring
+except NameError:
+	basestring = str
+
+
 REGEX_PARAMETERS = re.compile(r'\[.+\]$')
 
 
@@ -90,6 +96,21 @@ def get_names(item):
 	# Custom name
 	marker = item.get_marker(MARKER_NAME)
 	if marker and MARKER_KWARG_ID in marker.kwargs:
-		names.add(marker.kwargs[MARKER_KWARG_ID])
+		for name in as_list(marker.kwargs[MARKER_KWARG_ID]):
+			names.add(name)
 
 	return names
+
+
+def as_list(lst):
+	"""
+	Convert the input to a list of strings.
+
+	If the input is a single string, it will be wrapped in a list instead of iterated over.
+
+	>>> as_list(['foo'])
+	['foo']
+	>>> as_list('foo')
+	['foo']
+	"""
+	return [lst] if isinstance(lst, basestring) else lst

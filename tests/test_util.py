@@ -56,3 +56,14 @@ class TestGetAbsoluteNodeid(object):
 		scope = 'test_file.py::test'
 		actual = testmodule.get_absolute_nodeid('test_file2.py::TestClass2::test2', scope)
 		assert actual == 'test_file2.py::TestClass2::test2'
+
+
+class TestAsList(object):
+	def test_input_list(self):
+		assert testmodule.as_list(['foo']) == ['foo']
+
+	def test_input_string(self):
+		assert testmodule.as_list('foo') == ['foo']
+
+	def test_input_unicode(self):
+		assert testmodule.as_list(u'foo') == [u'foo']

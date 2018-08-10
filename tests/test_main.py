@@ -248,7 +248,7 @@ class TestListDependencyNames(object):
 	def test_alias(self, testdir):
 		testdir.makepyfile("""
 			import pytest
-			@pytest.mark.depends(name = 'baz')
+			@pytest.mark.depends(name='baz')
 			def test_foo():
 				pass
 		""")
@@ -263,10 +263,10 @@ class TestListDependencyNames(object):
 	def test_multi_target_alias(self, testdir):
 		testdir.makepyfile("""
 			import pytest
-			@pytest.mark.depends(name = 'baz')
+			@pytest.mark.depends(name='baz')
 			def test_foo():
 				pass
-			@pytest.mark.depends(name = 'baz')
+			@pytest.mark.depends(name='baz')
 			def test_bar():
 				pass
 		""")
@@ -276,6 +276,22 @@ class TestListDependencyNames(object):
 			'*baz ->',
 			'  *::test_bar',
 			'  *::test_foo',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_multiple_names(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			@pytest.mark.depends(name=['bar', 'baz'])
+			def test_foo():
+				pass
+		""")
+		result = testdir.runpytest('--list-dependency-names')
+		result.stdout.fnmatch_lines([
+			'Available dependency names:',
+			'*bar -> *::test_foo',
+			'*baz -> *::test_foo',
 			'collected *',
 		])
 		assert result.ret == 0
@@ -388,6 +404,24 @@ class TestListProcessedDependencies(object):
 			'Dependencies:',
 			'*::test_foo*',
 			'  *baz (MISSING)',
+			'collected *',
+		])
+		assert result.ret == 0
+
+	def test_on_string(self, testdir):
+		testdir.makepyfile("""
+			import pytest
+			def test_foo():
+				pass
+			@pytest.mark.depends(on='test_foo')
+			def test_bar():
+				pass
+		""")
+		result = testdir.runpytest('--list-processed-dependencies')
+		result.stdout.fnmatch_lines([
+			'Dependencies:',
+			'*::test_bar*',
+			'  *test_foo',
 			'collected *',
 		])
 		assert result.ret == 0
