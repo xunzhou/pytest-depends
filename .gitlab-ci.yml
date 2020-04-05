@@ -12,38 +12,98 @@ cache:
 before_script:
    - mkdir -p "$PIP_CACHE_DIR"
 
-# Unit tests
-.test:base: &test-base
+# pytest 3.x versions
+.test:pytest3:base: &test-pytest3-base
    stage: test
    script:
       - pip install -r requirements_tests.txt
+      - pip install 'pytest >= 3, < 4'
       - pip install -e .
       - pytest --missing-dependency-action=fail
-
-test:python:3.8:
-   <<: *test-base
+test:pytest3:python:3.8:
+   <<: *test-pytest3-base
    image: python:3.8-alpine
-test:python:3.7:
-   <<: *test-base
+test:pytest3:python:3.7:
+   <<: *test-pytest3-base
    image: python:3.7-alpine
-test:python:3.6:
-   <<: *test-base
+test:pytest3:python:3.6:
+   <<: *test-pytest3-base
    image: python:3.6-alpine
-test:python:3.5:
-   <<: *test-base
+test:pytest3:python:3.5:
+   <<: *test-pytest3-base
    image: python:3.5-alpine
-test:python:2.7:
-   <<: *test-base
+test:pytest3:python:2.7:
+   <<: *test-pytest3-base
    image: python:2.7-alpine
-test:pypy:3-7:
-   <<: *test-base
+test:pytest3:pypy:3-7:
+   <<: *test-pytest3-base
    image: pypy:3-7-slim
-test:pypy:3-6:
-   <<: *test-base
+test:pytest3:pypy:3-6:
+   <<: *test-pytest3-base
    image: pypy:3-6-slim
-test:pypy:2-6:
-   <<: *test-base
+test:pytest3:pypy:2-6:
+   <<: *test-pytest3-base
    image: pypy:2-6-slim
+
+# pytest 4.x versions
+.test:pytest4:base: &test-pytest4-base
+   stage: test
+   script:
+      - pip install -r requirements_tests.txt
+      - pip install 'pytest >= 4, < 5'
+      - pip install -e .
+      - pytest --missing-dependency-action=fail
+test:pytest4:python:3.8:
+   <<: *test-pytest4-base
+   image: python:3.8-alpine
+test:pytest4:python:3.7:
+   <<: *test-pytest4-base
+   image: python:3.7-alpine
+test:pytest4:python:3.6:
+   <<: *test-pytest4-base
+   image: python:3.6-alpine
+test:pytest4:python:3.5:
+   <<: *test-pytest4-base
+   image: python:3.5-alpine
+test:pytest4:python:2.7:
+   <<: *test-pytest4-base
+   image: python:2.7-alpine
+test:pytest4:pypy:3-7:
+   <<: *test-pytest4-base
+   image: pypy:3-7-slim
+test:pytest4:pypy:3-6:
+   <<: *test-pytest4-base
+   image: pypy:3-6-slim
+test:pytest4:pypy:2-6:
+   <<: *test-pytest4-base
+   image: pypy:2-6-slim
+
+# pytest 5.x versions
+.test:pytest5:base: &test-pytest5-base
+   stage: test
+   script:
+      - pip install -r requirements_tests.txt
+      - pip install 'pytest >= 5, < 6'
+      - pip install -e .
+      - pytest --missing-dependency-action=fail
+test:pytest5:python:3.8:
+   <<: *test-pytest5-base
+   image: python:3.8-alpine
+test:pytest5:python:3.7:
+   <<: *test-pytest5-base
+   image: python:3.7-alpine
+test:pytest5:python:3.6:
+   <<: *test-pytest5-base
+   image: python:3.6-alpine
+test:pytest5:python:3.5:
+   <<: *test-pytest5-base
+   image: python:3.5-alpine
+test:pytest5:pypy:3-7:
+   <<: *test-pytest5-base
+   image: pypy:3-7-slim
+test:pytest5:pypy:3-6:
+   <<: *test-pytest5-base
+   image: pypy:3-6-slim
 
 # Code style
 test:style:
