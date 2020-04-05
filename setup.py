@@ -9,7 +9,7 @@ with open('README.md', 'r') as f:
 
 setup(
 	name = 'pytest-depends',
-	version = '0.8.1',
+	version = '0.9.0',
 	license = 'MIT',
 	description = 'Tests that depend on other tests',
 	long_description = long_description,
@@ -29,6 +29,8 @@ setup(
 		'Programming Language :: Python :: 3.4',
 		'Programming Language :: Python :: 3.5',
 		'Programming Language :: Python :: 3.6',
+		'Programming Language :: Python :: 3.7',
+		'Programming Language :: Python :: 3.8',
 		'Programming Language :: Python :: Implementation :: CPython',
 		'Programming Language :: Python :: Implementation :: PyPy',
 		'Operating System :: OS Independent',
