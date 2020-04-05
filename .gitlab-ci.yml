@@ -50,6 +50,7 @@ test:style:
    stage: test
    image: python:alpine
    script:
+      - apk add --no-cache git
       - pip install -r requirements_style.txt
       - pycodestyle
       - pydocstyle
