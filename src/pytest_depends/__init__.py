@@ -105,6 +105,9 @@ def pytest_configure(config):  # noqa: D103
 		DEPENDENCY_PROBLEM_ACTIONS.keys(),
 	)
 
+	# Register marker
+	config.addinivalue_line("markers", "depends(name='name', on=['other_name']): marks depencies between tests.")
+
 
 @pytest.hookimpl(trylast = True)
 def pytest_collection_modifyitems(config, items):  # noqa: D103
@@ -133,7 +136,7 @@ def pytest_runtest_makereport(item, call):  # noqa: D103
 	outcome = yield
 
 	# Store the result on the manager
-	manager.register_result(item, outcome.result)
+	manager.register_result(item, outcome.get_result())
 
 
 def pytest_runtest_call(item):  # noqa: D103

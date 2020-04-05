@@ -45,7 +45,7 @@ setup(
 		'colorama',
 		'future-fstrings',
 		'networkx',
-		'pytest >= 3, < 3.7',
+		'pytest >= 3',
 	],
 	entry_points={
 		'pytest11': [

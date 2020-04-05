@@ -94,12 +94,20 @@ def get_names(item):
 		names.add(nodeid)
 
 	# Custom name
-	marker = item.get_marker(MARKER_NAME)
-	if marker and MARKER_KWARG_ID in marker.kwargs:
-		for name in as_list(marker.kwargs[MARKER_KWARG_ID]):
-			names.add(name)
+	markers = get_markers(item, MARKER_NAME)
+	for marker in markers:
+		if MARKER_KWARG_ID in marker.kwargs:
+			for name in as_list(marker.kwargs[MARKER_KWARG_ID]):
+				names.add(name)
 
 	return names
+
+
+def get_markers(item, name):
+	""" A wrapper to get the marker(s) with a given name for a given item. """
+	for marker in item.iter_markers():
+		if marker.name == name:
+			yield marker
 
 
 def as_list(lst):

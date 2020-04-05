@@ -17,6 +17,7 @@ from pytest_depends.constants import MARKER_KWARG_DEPENDENCIES
 from pytest_depends.util import as_list
 from pytest_depends.util import clean_nodeid
 from pytest_depends.util import get_absolute_nodeid
+from pytest_depends.util import get_markers
 from pytest_depends.util import get_names
 
 
@@ -54,11 +55,9 @@ class TestDependencies(object):
 		self.dependencies = set()
 		self.unresolved = set()
 
-		marker = item.get_marker(MARKER_NAME)
-		if marker is None:
-			return
-
-		for dependency in as_list(marker.kwargs.get(MARKER_KWARG_DEPENDENCIES, [])):
+		markers = get_markers(item, MARKER_NAME)
+		dependencies = [dep for marker in markers for dep in as_list(marker.kwargs.get(MARKER_KWARG_DEPENDENCIES, []))]
+		for dependency in dependencies:
 			# If the name is not known, try to make it absolute (ie file::[class::]method)
 			if dependency not in manager.name_to_nodeids:
 				absolute_dependency = get_absolute_nodeid(dependency, self.nodeid)

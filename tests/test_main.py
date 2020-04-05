@@ -327,7 +327,9 @@ class TestListDependencyNames(object):
 		result = testdir.runpytest('--list-dependency-names')
 		result.stdout.fnmatch_lines([
 			'Available dependency names:',
-			'*bar -> *::test_foo*',
+			'*bar ->',
+			'  *::test_foo*',
+			'  *::test_foo*',
 			'*baz -> *::test_foo*',
 			'collected *',
 		])
