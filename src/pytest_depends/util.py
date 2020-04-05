@@ -104,7 +104,7 @@ def get_names(item):
 
 
 def get_markers(item, name):
-	""" A wrapper to get the marker(s) with a given name for a given item. """
+	""" Get all markers with the given name for a given item. """
 	for marker in item.iter_markers():
 		if marker.name == name:
 			yield marker
