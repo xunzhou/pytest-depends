@@ -25,9 +25,9 @@ BUILD_PATH = 'build'
 def test_build_exists():
     assert os.path.exists(BUILD_PATH)
 
-@pytest.depends(on=['test_build_exists'])
+@pytest.mark.depends(on=['test_build_exists'])
 def test_build_version():
-    result = subprocess.run([BUILD_PATH, '--version', stdout=subprocess.PIPE)
+    result = subprocess.run([BUILD_PATH, '--version'], stdout=subprocess.PIPE)
     assert result.returncode == 0
     assert '1.2.3' in result.stdout
 ```
