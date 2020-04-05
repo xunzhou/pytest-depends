@@ -20,18 +20,24 @@ before_script:
       - pip install -e .
       - pytest --missing-dependency-action=fail
 
+test:python:3.8:
+   <<: *test-base
+   image: python:3.8-alpine
+test:python:3.7:
+   <<: *test-base
+   image: python:3.7-alpine
 test:python:3.6:
    <<: *test-base
    image: python:3.6-alpine
 test:python:3.5:
    <<: *test-base
    image: python:3.5-alpine
-test:python:3.4:
-   <<: *test-base
-   image: python:3.4-alpine
 test:python:2.7:
    <<: *test-base
    image: python:2.7-alpine
+test:pypy:3-7:
+   <<: *test-base
+   image: pypy:3-7-slim
 test:pypy:3-6:
    <<: *test-base
    image: pypy:3-6-slim
