@@ -9,7 +9,7 @@ with open('README.md', 'r') as f:
 
 setup(
 	name = 'pytest-depends',
-	version = '0.9.0',
+	version = '1.0.0',
 	license = 'MIT',
 	description = 'Tests that depend on other tests',
 	long_description = long_description,
@@ -18,7 +18,7 @@ setup(
 	author_email = 'michon1992@gmail.com',
 	url = 'https://gitlab.com/maienm/pytest-depends',
 	classifiers = [
-		'Development Status :: 4 - Beta',
+		'Development Status :: 5 - Production/Stable',
 		'Framework :: Pytest',
 		'Intended Audience :: Developers',
 		'Topic :: Software Development :: Testing',
