@@ -37,7 +37,8 @@ class TestResult(object):
 		if result.when not in self.STEPS:
 			raise ValueError(f'Received result for unknown step {result.when} of test {self.nodeid}')
 		if result.when in self.results:
-			raise AttributeError(f'Received multiple results for step {result.when} of test {self.nodeid}')
+			pass # bypass xdist internal error
+			# raise AttributeError(f'Received multiple results for step {result.when} of test {self.nodeid}')
 		self.results[result.when] = result.outcome
 
 	@property
